@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escape-Game Expertenlevel: Die versteckten Kosten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0F2130;--navy2:#1B3549;--grau:#56676F;--akzent:#C1652B;--akzent-hell:#F6E6DB;--linie:#D5DBDE;--hg:#EEF1F3;--gruen:#2F7D5B;--gruen-hell:#E1F1E9;--rot:#B2342B;--rot-hell:#F7E1DF;--gold:#D9A441}
+*{box-sizing:border-box}
+body{margin:0;font-family:"IBM Plex Sans",system-ui,sans-serif;color:var(--navy);background:var(--hg);line-height:1.5}
+h1,h2,h3,h4{font-family:Archivo,system-ui,sans-serif;line-height:1.2;margin:0 0 .5em}
+h4{font-size:1rem;margin-top:.9em}
+.wrap{max-width:1020px;margin:0 auto;padding:0 18px}
+header{background:#0A1722;color:#fff;padding:12px 0;position:sticky;top:0;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.hbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{font-family:Archivo;font-weight:800}.logo span{color:var(--gold)}
+.badge{display:inline-block;background:var(--rot);color:#fff;border-radius:999px;padding:2px 10px;font-size:.75rem;font-weight:600;margin-left:6px;vertical-align:middle}
+.hstat{margin-left:auto;display:flex;gap:14px;align-items:center;font-size:.9rem;flex-wrap:wrap}
+.uhr{font-family:"IBM Plex Mono",monospace;font-size:1.15rem;background:var(--navy2);padding:4px 10px;border-radius:6px}
+.ziffern{display:flex;gap:4px}
+.ziffern b{display:inline-grid;place-items:center;width:26px;height:30px;border-radius:5px;background:var(--navy2);color:#6F8597;font-family:"IBM Plex Mono",monospace}
+.ziffern b.ok{background:var(--gold);color:var(--navy)}
+main{padding:22px 0 60px}
+.karte{background:#fff;border:1px solid var(--linie);border-radius:12px;padding:20px;margin-bottom:16px}
+.btn{background:var(--navy);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--navy2)}.btn.akz{background:var(--akzent)}
+.btn.sek{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hinweis{color:var(--grau);font-size:.9rem}
+.story{background:linear-gradient(135deg,#0A1722,#2A2033);color:#EAF0F3;border-radius:14px;padding:26px}
+.story h1{color:#fff;font-size:clamp(1.6rem,4vw,2.3rem)}.story .gold{color:var(--gold)}
+.regeln li{margin:4px 0}
+.raeume{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.raum-kachel{border:2px solid var(--linie);border-radius:12px;padding:12px;background:#fff;text-align:left;font:inherit;cursor:pointer;position:relative;min-height:96px}
+.raum-kachel .nr{font-family:Archivo;font-weight:800;color:var(--akzent)}
+.raum-kachel.gesperrt{cursor:not-allowed;background:#E3E8EB;color:#8A979E}
+.raum-kachel.geloest{border-color:var(--gruen);background:var(--gruen-hell)}
+.raum-kachel.aktiv{border-color:var(--akzent)}
+.raum-kachel .status{position:absolute;right:10px;top:8px}
+.dok{background:#fff;border:1px solid #C9D1D6;border-radius:6px;padding:14px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.dok h4{margin-top:0}
+.dok.papier{background:#FFFDF6;border-color:#E6DCC2}
+table{border-collapse:collapse;width:100%}
+td,th{padding:5px 8px;border-bottom:1px solid #E3E7EA;text-align:left;font-size:.9rem;vertical-align:top}
+th{background:#F1F4F6}
+td.r,th.r{text-align:right;font-family:"IBM Plex Mono",monospace;white-space:nowrap}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:.86rem}
+.minus{color:var(--rot)}.plus{color:var(--gruen)}
+.klein{font-size:.78rem;color:var(--grau)}
+.kleingedruckt{font-size:.72rem;color:#6B777D;line-height:1.35;margin-top:8px}
+.zweispaltig{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.antwort{background:#F6F8F9;border:2px solid var(--navy);border-radius:10px;padding:14px;margin-top:14px}
+.num-zeile{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+.num-zeile label{min-width:300px;flex:1}
+.num-zeile input{width:140px;padding:8px;border:1px solid var(--linie);border-radius:6px;font:inherit;text-align:right}
+.feedback{margin-top:10px;padding:10px 12px;border-radius:8px;display:none}
+.feedback.r{display:block;background:var(--gruen-hell)}.feedback.f{display:block;background:var(--rot-hell)}
+.hilfen{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.hilfe-text{background:#EEF3F6;border-left:4px solid var(--navy);border-radius:6px;padding:8px 12px;margin-top:8px}
+textarea{width:100%;min-height:70px;padding:8px;border:1px solid var(--linie);border-radius:8px;font:inherit}
+input[type=text]{padding:8px;border:1px solid var(--linie);border-radius:6px;font:inherit}
+.ziffer-gross{font-family:"IBM Plex Mono",monospace;font-size:3rem;font-weight:700;background:var(--gold);display:inline-grid;place-items:center;width:80px;height:90px;border-radius:12px;margin:8px 0}
+.tresor{display:flex;gap:8px;justify-content:center;margin:14px 0}
+.tresor input{width:52px;height:62px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.8rem;border:2px solid var(--navy);border-radius:8px}
+.zert{border:3px double var(--gold);border-radius:14px;padding:24px;text-align:center;background:#FFFDF7}
+.vorschlag{display:grid;grid-template-columns:28px 1fr auto;gap:8px;padding:8px 10px;border:1px solid var(--linie);border-radius:8px;background:#fff;margin:6px 0}
+.vorschlag .nr{font-family:Archivo;font-weight:800;color:var(--akzent)}
+.glossar dt{font-weight:700;margin-top:8px}.glossar dd{margin:0 0 4px 0}
+dialog{border:0;border-radius:12px;max-width:680px;width:92%;padding:22px;max-height:85vh}
+dialog::backdrop{background:rgba(10,23,34,.55)}
+footer{font-size:.8rem;color:var(--grau);padding:10px 0 40px}
+.versteckt{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap hbar">
+    <div class="logo">🔐 Geld im Griff <span>· Die versteckten Kosten</span><span class="badge">Expertenlevel</span></div>
+    <div class="hstat">
+      <span>Code: <span class="ziffern" id="codeAnzeige"></span></span>
+      <span class="uhr" id="uhr">45:00</span>
+      <button class="btn sek" id="glossarBtn" style="padding:6px 10px">📘 Glossar</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+<section id="startScreen">
+  <div class="story">
+    <div class="hinweis" style="color:#AFC0CA">Escape-Game · Wirtschaft und Recht 10 · Expertenlevel</div>
+    <h1>Akte Lukas – Die versteckten Kosten</h1>
+    <p>Lukas, 23, sitzt in der Schuldnerberatung. 14.300 € Schulden, Dispo ausgeschöpft. „Ich hab doch nie viel ausgegeben“, sagt er, „und alles war 0 % oder ‚nur 249 € im Monat‘.“</p>
+    <p>Eure Aufgabe als Analyse-Team: Findet heraus, <b class="gold">wo das Geld wirklich hingegangen ist</b>. Vor euch liegen seine Kontoauszüge, Verträge, Werbeanzeigen und der PayPal-Verlauf. Die Zahlen sind echt gemeint, aber die Fallen stecken im Detail.</p>
+    <p>Jede Station liefert eine <b class="gold">Ziffer</b> für den sechsstelligen Tresorcode. Ihr habt 45 Minuten.</p>
+  </div>
+  <div class="karte" style="margin-top:16px">
+    <h3>Regeln für Profis</h3>
+    <ul class="regeln">
+      <li>Pro Station prüft ihr nur die <b>Endergebnisse</b>. Die Rückmeldung sagt euch, <i>wie viele</i> Werte stimmen, aber nicht, welche.</li>
+      <li>Jeder Fehlversuch kostet <b>30 Sekunden</b>, jeder Tipp <b>1 Minute</b>. Erst rechnen, dann prüfen!</li>
+      <li>Rechnet auf Papier oder im Notizfeld der Station. Ein Taschenrechner ist erlaubt.</li>
+      <li>Beträge auf den Cent genau, wenn nicht anders angegeben. Minusbeträge mit Minuszeichen eingeben.</li>
+      <li>Fachbegriffe wie <i>effektiver Jahreszins</i> oder <i>geduldete Überziehung</i> stehen im 📘 Glossar.</li>
+    </ul>
+    <p><label>Teamname: <input type="text" id="teamName" maxlength="30" placeholder="z. B. Team Kleingedrucktes"></label></p>
+    <button class="btn akz" id="losBtn">Ermittlung starten</button>
+    <button class="btn sek" id="resetBtn">Neu beginnen</button>
+  </div>
+</section>
+
+<section id="spielScreen" class="versteckt">
+  <div class="raeume" id="raumKacheln"></div>
+  <div id="raumInhalt"></div>
+</section>
+
+<section id="tresorScreen" class="versteckt">
+  <div class="karte" style="text-align:center">
+    <h2>🔐 Der Tresor</h2>
+    <p>Gebt die sechs Ziffern in der Reihenfolge der Stationen ein.</p>
+    <div class="tresor" id="tresorFelder"></div>
+    <button class="btn akz" id="tresorBtn">Öffnen</button>
+    <div class="feedback" id="tresorFb"></div>
+  </div>
+</section>
+
+<section id="finaleScreen" class="versteckt">
+  <div class="story">
+    <h1>630 137 – der Code ist kein Zufall</h1>
+    <p><b class="gold">630 €</b> fehlten Lukas jeden Monat. <b class="gold">137,24 €</b> bleiben ihm, wenn er alle seriösen Maßnahmen umsetzt. Die Lücke ist geschlossen, aber nur, weil ihr die versteckten Kosten gefunden habt.</p>
+  </div>
+  <div class="karte" style="margin-top:16px">
+    <h3>Eure Bilanz der versteckten Kosten</h3>
+    <table>
+      <tr><th>Falle</th><th>Was man sieht</th><th>Was es wirklich kostet</th></tr>
+      <tr><td>Unregelmäßige Kosten</td><td>Spielraum +113,63 €</td><td>Spielraum −24,96 € pro Monat</td></tr>
+      <tr><td>„0-%-Finanzierung“</td><td>24 × 46,63 €</td><td>1.330,78 €, 35,9 % mehr als der günstigste Preis</td></tr>
+      <tr><td>„ab 249 € monatlich“</td><td>Reise für 10.500 €</td><td>14.196 €, also 3.696 € mehr als die Reise</td></tr>
+      <tr><td>Überziehung über den Dispo</td><td>„etwas im Minus“</td><td>17,91 € Zinsen in einem Monat</td></tr>
+      <tr><td>Probeabos</td><td>0,99 € und 1,00 €</td><td>575,40 € in den nächsten 12 Monaten</td></tr>
+    </table>
+    <h4>Reflexion</h4>
+    <p><label>Welche versteckte Kostenfalle hat euch am meisten überrascht, und woran erkennt man sie beim nächsten Mal?<br><textarea id="reflexion"></textarea></label></p>
+    <p><label>Hook für einen Warn-Post (erster Satz, der zum Weiterschauen bringt):<br><input type="text" id="hook" style="width:100%" placeholder="„0 % Finanzierung – und trotzdem 352 € mehr bezahlt?“"></label></p>
+  </div>
+  <div class="zert" id="zertifikat"></div>
+</section>
+</main>
+
+<dialog id="glossar">
+  <h3>📘 Glossar (Expertenlevel)</h3>
+  <dl class="glossar">
+    <dt>Regelmäßige und unregelmäßige Ausgaben</dt><dd>Manche Kosten fallen nur vierteljährlich oder jährlich an. Für eine ehrliche Monatsrechnung rechnet man sie auf den Monat um: Jahresbetrag : 12.</dd>
+    <dt>Einmalige Einnahmen</dt><dd>Geldgeschenke oder Rückerstattungen sind kein Einkommen, mit dem man jeden Monat planen kann.</dd>
+    <dt>Bearbeitungsentgelt</dt><dd>Einmalige Gebühr bei Vertragsabschluss. Sie macht eine „0-%-Finanzierung“ in Wahrheit teurer.</dd>
+    <dt>Sollzins</dt><dd>Der vereinbarte Zinssatz für das geliehene Geld, ohne weitere Kosten.</dd>
+    <dt>Effektiver Jahreszins</dt><dd>Gesamtkosten eines Kredits pro Jahr in Prozent. Damit kann man Angebote vergleichen.</dd>
+    <dt>Repräsentatives Beispiel („ab“-Zins)</dt><dd>Werbung darf mit einem Beispiel werben, das mindestens zwei Drittel der Kunden bekommen. Wer eine schlechtere Bonität hat, zahlt mehr.</dd>
+    <dt>Bonität / SCHUFA</dt><dd>Einschätzung, wie zuverlässig jemand Kredite zurückzahlt. Schlechte Bonität bedeutet höhere Zinsen oder gar keinen Kredit.</dd>
+    <dt>Restschuldversicherung</dt><dd>Versicherung, die Raten z. B. bei Arbeitslosigkeit zahlen soll. Wird oft mitverkauft und mitfinanziert, sodass auch auf sie Zinsen anfallen.</dd>
+    <dt>Dispokredit</dt><dd>Vereinbarter Überziehungsrahmen auf dem Girokonto, z. B. 2.000 €.</dd>
+    <dt>Geduldete Überziehung</dt><dd>Minus über den Dispo-Rahmen hinaus. Die Bank lässt es zu, verlangt dafür aber einen noch höheren Zinssatz, nur auf den Betrag über dem Rahmen.</dd>
+    <dt>Taggenaue Zinsen</dt><dd>Zinsen = Betrag × Zinssatz × Tage : 365.</dd>
+    <dt>Probeabo</dt><dd>Günstiger Einstieg (z. B. 0,99 €), der sich automatisch in ein normales Abo umwandelt, wenn man nicht kündigt.</dd>
+    <dt>Mindestlohn 2026</dt><dd>13,90 € pro Stunde (gesetzlich). Minijob-Grenze 2026: 603 € im Monat.</dd>
+    <dt>Kredit „ohne SCHUFA“</dt><dd>Oft unseriös: Vermittler verlangen Gebühren vorab oder verkaufen teure Zusatzprodukte. Verbraucherzentralen warnen davor.</dd>
+  </dl>
+  <button class="btn" onclick="document.getElementById('glossar').close()">Schließen</button>
+</dialog>
+
+<footer class="wrap">
+  Grundlage: Fallbeispiel „Lukas' Weg in die Überschuldung“ aus der Unterrichtseinheit „Geld im Griff statt Konto im Minus“ (Sparkassen-Schulservice, DSGV, 07/2026), für die Jahrgangsstufe 10 zu einer Fallanalyse mit versteckten Kosten weiterentwickelt. Alle Personen, Firmen und Beträge sind erfunden. Zahlen zu Mindestlohn, Minijob-Grenze und Deutschlandticket: Stand 2026. Lernangebot ohne Gewähr.
+</footer>
+
+<script>
+const $=s=>document.querySelector(s);
+const speicher={get(k){try{return JSON.parse(localStorage.getItem("escExp_"+k));}catch(e){return null;}},set(k,v){try{localStorage.setItem("escExp_"+k,JSON.stringify(v));}catch(e){}},weg(){try{Object.keys(localStorage).filter(k=>k.startsWith("escExp_")).forEach(k=>localStorage.removeItem(k));}catch(e){}}};
+const CODE="630137";
+
+const ST=[
+{ titel:"Der echte Monat", kurz:"Unregelmäßige Kosten", ziffer:"6",
+  material:`
+  <p>Ein Jahr vor seinem Termin hat Lukas sein Budget „durchgerechnet“: Kontoauszug Oktober, Einnahmen minus Ausgaben. Ergebnis: Er war im Plus. Oktober war ein ganz normaler Monat. Rechnet nach, ob er wirklich im Plus war.</p>
+  <div class="dok"><h4>🏦 Girokonto · Kontoauszug Oktober</h4>
+  <table class="mono">
+   <tr><th>Datum</th><th>Buchungstext</th><th class="r">Betrag</th></tr>
+   <tr><td>01.10.</td><td>GEHALT OKTOBER · Mustermann Logistik GmbH</td><td class="r plus">+1.500,00</td></tr>
+   <tr><td>01.10.</td><td>DA Hausverwaltung Kern · Miete</td><td class="r minus">−690,00</td></tr>
+   <tr><td>01.10.</td><td>Beitragsservice ARD ZDF · Rundfunkbeitrag 10–12/2026</td><td class="r minus">−55,08</td></tr>
+   <tr><td>02.10.</td><td>Stadtwerke · Abschlag Strom</td><td class="r minus">−55,00</td></tr>
+   <tr><td>02.10.</td><td>NetzPlus · Internet</td><td class="r minus">−34,99</td></tr>
+   <tr><td>03.10.</td><td>Mobilfunk · Handyvertrag</td><td class="r minus">−19,99</td></tr>
+   <tr><td>03.10.</td><td>Finanzierungsbank · Rate 2/24 Smartphone</td><td class="r minus">−46,63</td></tr>
+   <tr><td>03.10.</td><td>Versicherung · Handyschutz Premium</td><td class="r minus">−7,99</td></tr>
+   <tr><td>04.10.</td><td>Verkehrsverbund · Deutschlandticket</td><td class="r minus">−63,00</td></tr>
+   <tr><td>05.10.</td><td>NETFLIX.COM</td><td class="r minus">−13,99</td></tr>
+   <tr><td>05.10.</td><td>Spotify</td><td class="r minus">−12,99</td></tr>
+   <tr><td>06.10.</td><td>FitnessWerk · Mitgliedsbeitrag</td><td class="r minus">−29,90</td></tr>
+   <tr><td>06.10.</td><td>Kartenzahlung REWE</td><td class="r minus">−62,40</td></tr>
+   <tr><td>09.10.</td><td>Gutschrift Rücksendung · Online-Modehaus</td><td class="r plus">+49,99</td></tr>
+   <tr><td>11.10.</td><td>Kartenzahlung LIDL</td><td class="r minus">−48,15</td></tr>
+   <tr><td>11.10.</td><td>Kartenzahlung Bar „Kiez“</td><td class="r minus">−38,50</td></tr>
+   <tr><td>14.10.</td><td>Kartenzahlung dm</td><td class="r minus">−23,80</td></tr>
+   <tr><td>17.10.</td><td>Überweisung Oma · „Alles Gute zum Geburtstag“</td><td class="r plus">+50,00</td></tr>
+   <tr><td>18.10.</td><td>Kartenzahlung EDEKA</td><td class="r minus">−71,30</td></tr>
+   <tr><td>19.10.</td><td>Kartenzahlung Pizzeria</td><td class="r minus">−27,00</td></tr>
+   <tr><td>22.10.</td><td>Kartenzahlung Modehaus</td><td class="r minus">−79,95</td></tr>
+   <tr><td>25.10.</td><td>Kartenzahlung REWE</td><td class="r minus">−55,85</td></tr>
+   <tr><td>25.10.</td><td>Kartenzahlung Bar „Kiez“</td><td class="r minus">−44,90</td></tr>
+   <tr><td>31.10.</td><td>Kontoführungsentgelt</td><td class="r minus">−4,95</td></tr>
+  </table></div>
+  <div class="dok papier"><h4>🗒️ Lukas' Zettel: „Was letztes Jahr sonst noch abging“</h4>
+   <ul><li>Haftpflicht- und Hausratversicherung: 84,00 € (jährlich im März)</li>
+   <li>Amazon Prime: 89,90 € (jährlich im Juni)</li>
+   <li>Nebenkostennachzahlung Wohnung: 180,00 € (im Mai)</li>
+   <li>Geschenke Weihnachten und Geburtstage: ca. 370 € im Jahr</li>
+   <li>Zahnreinigung: 2 × 90,00 € im Jahr</li></ul>
+   <p class="klein">Den Rundfunkbeitrag hat er nicht aufgeschrieben, „der steht ja im Auszug“.</p></div>`,
+  felder:[["Lukas' naives Ergebnis: alle Gutschriften minus alle Lastschriften im Oktober",113.63,0.02],["Echter durchschnittlicher Spielraum pro Monat (nur regelmäßige Einnahmen, alle Kosten aufs Jahr umgerechnet)",-24.96,0.05]],
+  erkl:"Naiv: 1.599,99 € − 1.486,36 € = +113,63 €. Echt: Nur das Gehalt (1.500 €) ist regelmäßig. Der Rundfunkbeitrag (55,08 €) gilt für drei Monate, also 220,32 € im Jahr. Mit den Posten vom Zettel sind das 1.124,22 € unregelmäßige Kosten pro Jahr, gleich 93,69 € pro Monat. Monatliche Ausgaben ohne Rundfunk: 1.431,28 €. Spielraum: 1.500 − 1.431,28 − 93,69 = −24,96 €. Lukas war nie im Plus.",
+  hilfen:["Zwei Gutschriften sind kein Einkommen, mit dem man planen kann. Und eine Lastschrift im Auszug gilt nicht nur für einen Monat.","Rechnet in drei Schritten: (1) regelmäßige Monatsausgaben aus dem Auszug, ohne Rundfunkbeitrag; (2) alle unregelmäßigen Kosten fürs ganze Jahr, Rundfunk × 4, dann : 12; (3) Gehalt − (1) − (2).","Summe aller Lastschriften im Oktober: 1.486,36 €. Unregelmäßige Kosten im Jahr: 1.124,22 €."]},
+
+{ titel:"Das 0-%-Smartphone", kurz:"Kleingedrucktes", ziffer:"3",
+  material:`
+  <p>Das Smartphone aus dem Comic. Lukas hat online im Shop von „TechWorld“ bestellt und dabei auf „Jetzt finanzieren“ geklickt.</p>
+  <div class="zweispaltig">
+  <div class="dok"><h4>🛒 TechWorld · Bestellübersicht</h4>
+   <p><b>Smartphone X15 Pro, 256 GB</b><br>Preis: 1.119,00 €</p>
+   <p style="font-size:1.3rem;font-weight:700;color:var(--akzent)">0 % Finanzierung<br>nur 46,63 € mtl.</p>
+   <p>☑ Handyschutz Premium (Diebstahl & Display) für 7,99 €/Monat, Laufzeit wie Finanzierung</p>
+   <p>Laufzeit: 24 Monate</p>
+   <div class="kleingedruckt">Finanzierung über die Finanzierungsbank AG. Sollzins gebunden 0,00 % p. a. Für die Bearbeitung des Finanzierungsantrags berechnen wir einmalig 19,90 €, fällig mit der ersten Rate. Der Handyschutz ist voreingestellt und kann im Bestellprozess abgewählt werden. Ratenbeträge sind gerundet; die Summe der Raten kann geringfügig vom Kaufpreis abweichen.</div>
+  </div>
+  <div class="dok"><h4>🔎 Preisvergleich (gleicher Tag)</h4>
+   <table><tr><th>Händler</th><th class="r">Preis</th></tr>
+   <tr><td>TechWorld</td><td class="r">1.119,00 €</td></tr>
+   <tr><td>Elektro-Markt</td><td class="r">1.049,00 €</td></tr>
+   <tr><td>Online-Händler „Pixelhaus“ (sofort lieferbar)</td><td class="r">979,00 €</td></tr></table>
+   <p class="klein">Alle Preise für dasselbe Modell, Neuware, inkl. Versand.</p>
+  </div></div>`,
+  felder:[["Was zahlt Lukas in 24 Monaten insgesamt an TechWorld und die Bank?",1330.78,0.05],["Um wie viel Prozent ist das teurer als der günstigste Barpreis? (auf eine Nachkommastelle)",35.9,0.1]],
+  erkl:"24 × 46,63 € = 1.119,12 € (Rundung!) + 19,90 € Bearbeitungsentgelt + 24 × 7,99 € = 191,76 € Handyschutz = 1.330,78 €. Gegenüber 979 € sind das 351,78 € oder 35,9 % mehr. „0 %“ bezog sich nur auf den Sollzins.",
+  hilfen:["„0 %“ steht nur beim Sollzins. Lest das Kleingedruckte Satz für Satz: Was kommt einmalig dazu, was monatlich?","Gesamt = Raten + einmaliges Entgelt + Handyschutz über die ganze Laufzeit. Prozent = Mehrbetrag : günstigster Preis × 100.","Die Raten allein ergeben 1.119,12 €, der Handyschutz kostet 191,76 €."]},
+
+{ titel:"„ab 249 € monatlich“", kurz:"Kreditwerbung", ziffer:"0",
+  material:`
+  <div class="zweispaltig">
+  <div class="dok"><h4>📣 Werbeanzeige</h4>
+   <p style="font-size:1.25rem;font-weight:700">Einmal im Leben – Traumurlaub jetzt!<br><span style="color:var(--akzent)">10.500 € ab 249 € monatlich*</span></p>
+   <div class="kleingedruckt">*Repräsentatives Beispiel: Nettodarlehensbetrag 10.500 €, Laufzeit 48 Monate, gebundener Sollzins 6,49 % p. a., effektiver Jahreszins 6,69 %, Monatsrate 249,00 €, Gesamtbetrag 11.952,00 €. Bonitätsabhängig; mindestens zwei Drittel der Kunden erhalten dieses oder ein günstigeres Angebot.</div>
+  </div>
+  <div class="dok papier"><h4>✉️ Lukas' persönliches Kreditangebot</h4>
+   <p>Nach Prüfung Ihrer Bonität (SCHUFA-Auskunft: mehrere laufende Ratenkredite) können wir Ihnen folgendes Angebot machen:</p>
+   <table>
+    <tr><td>Reisepreis (Auszahlung an Reisebüro)</td><td class="r">10.500,00 €</td></tr>
+    <tr><td>Restschuldversicherung (empfohlen, wird mitfinanziert)</td><td class="r">690,00 €</td></tr>
+    <tr><td>Nettodarlehensbetrag</td><td class="r">11.190,00 €</td></tr>
+    <tr><td>Laufzeit</td><td class="r">48 Monate</td></tr>
+    <tr><td>effektiver Jahreszins</td><td class="r">12,90 %</td></tr>
+    <tr><td>Monatsrate</td><td class="r">295,75 €</td></tr>
+   </table>
+   <p class="klein">Lukas hat sofort unterschrieben: „Waren ja nur 47 € mehr im Monat.“</p>
+  </div></div>`,
+  felder:[["Wie viel zahlt Lukas insgesamt mehr, als die Reise kostet?",3696,0.5],["Wie viel mehr zahlt er insgesamt als jemand, der das Werbebeispiel bekommt?",2244,0.5]],
+  erkl:"Lukas zahlt 48 × 295,75 € = 14.196 €. Das sind 3.696 € mehr als der Reisepreis, mehr als ein Drittel. Das Werbebeispiel kostet 11.952 €, Lukas zahlt also 2.244 € mehr. „Nur 47 € mehr im Monat“ summiert sich über 48 Monate. Gründe: schlechtere Bonität (höherer Zins) und die mitfinanzierte Restschuldversicherung, auf die ebenfalls Zinsen anfallen.",
+  hilfen:["Vergleicht Gesamtbeträge, nicht Monatsraten. Die Reise kostet 10.500 €, aber was zahlt Lukas am Ende?","Gesamtbetrag = Rate × Laufzeit. Dann zweimal subtrahieren: einmal den Reisepreis, einmal den Gesamtbetrag aus dem Werbebeispiel.","Lukas' Gesamtbetrag: 14.196 €."]},
+
+{ titel:"Tiefer als der Dispo", kurz:"Zinsen taggenau", ziffer:"1",
+  material:`
+  <p>Ein Jahr später. Lukas' Konto ist dauerhaft im Minus, und er fragt: „Was kostet mich das eigentlich?“</p>
+  <div class="zweispaltig">
+  <div class="dok"><h4>🏦 Konditionen Girokonto</h4>
+   <table>
+    <tr><td>eingeräumter Dispokredit (Rahmen)</td><td class="r">2.000,00 €</td></tr>
+    <tr><td>Sollzins für den Dispokredit</td><td class="r">10,99 % p. a.</td></tr>
+    <tr><td>Sollzins für geduldete Überziehung</td><td class="r">15,99 % p. a.</td></tr>
+   </table>
+   <div class="kleingedruckt">Zinsen werden taggenau berechnet (Betrag × Zinssatz × Tage : 365). Der Zinssatz für die geduldete Überziehung gilt nur für den Teil des Sollsaldos, der den eingeräumten Rahmen übersteigt.</div>
+  </div>
+  <div class="dok"><h4>📉 Kontostand im November</h4>
+   <table>
+    <tr><th>Zeitraum</th><th class="r">Tage</th><th class="r">Kontostand</th></tr>
+    <tr><td>01.11.–09.11.</td><td class="r">9</td><td class="r minus">−1.200,00 €</td></tr>
+    <tr><td>10.11.–24.11.</td><td class="r">15</td><td class="r minus">−1.950,00 €</td></tr>
+    <tr><td>25.11.–30.11.</td><td class="r">6</td><td class="r minus">−2.850,00 €</td></tr>
+   </table>
+  </div></div>`,
+  felder:[["Wie viele Zinsen berechnet die Bank für den November insgesamt?",17.91,0.02]],
+  erkl:"Dispo: 1.200 × 0,1099 × 9/365 = 3,25 €; 1.950 × 0,1099 × 15/365 = 8,81 €; 2.000 × 0,1099 × 6/365 = 3,61 €. Geduldete Überziehung: 850 × 0,1599 × 6/365 = 2,23 €. Zusammen 17,91 €. Wer alles mit 10,99 % rechnet, kommt nur auf 17,21 € und übersieht den teureren Zins über dem Rahmen.",
+  hilfen:["Achtung: Ein Teil des Minus liegt über dem Rahmen. Dafür gilt ein anderer Zinssatz.","Rechnet jeden Zeitraum einzeln. Im letzten Zeitraum teilt ihr die 2.850 € auf: 2.000 € zu 10,99 % und 850 € zu 15,99 %.","Allein die geduldete Überziehung kostet 2,23 €, die drei Dispo-Teile zusammen 15,67 €."]},
+
+{ titel:"Abo-Detektiv", kurz:"Probeabos", ziffer:"3",
+  material:`
+  <p>Neben dem Girokonto zahlt Lukas vieles über PayPal. Heute ist der 30. November. Was kommt in den nächsten zwölf Monaten (Dezember bis November) auf ihn zu, wenn er nichts kündigt?</p>
+  <div class="zweispaltig">
+  <div class="dok"><h4>💳 PayPal-Aktivitäten September bis November</h4>
+  <table class="mono">
+   <tr><td>02.09.</td><td>PAYPAL *MICROSOFT</td><td class="r">−1,00</td></tr>
+   <tr><td>03.09.</td><td>APPLE.COM/BILL</td><td class="r">−2,99</td></tr>
+   <tr><td>03.09.</td><td>APPLE.COM/BILL</td><td class="r">−0,99</td></tr>
+   <tr><td>12.09.</td><td>PAYPAL *TWITCHINTE</td><td class="r">−4,99</td></tr>
+   <tr><td>15.09.</td><td>PAYPAL *LIEFERPASS</td><td class="r">−9,99</td></tr>
+   <tr><td>21.09.</td><td>PAYPAL *STEAM GAMES</td><td class="r">−29,99</td></tr>
+   <tr><td>02.10.</td><td>PAYPAL *MICROSOFT</td><td class="r">−17,99</td></tr>
+   <tr><td>03.10.</td><td>APPLE.COM/BILL</td><td class="r">−2,99</td></tr>
+   <tr><td>03.10.</td><td>APPLE.COM/BILL</td><td class="r">−0,99</td></tr>
+   <tr><td>12.10.</td><td>PAYPAL *TWITCHINTE</td><td class="r">−4,99</td></tr>
+   <tr><td>15.10.</td><td>PAYPAL *LIEFERPASS</td><td class="r">−9,99</td></tr>
+   <tr><td>18.10.</td><td>PAYPAL *VINTED</td><td class="r">−18,50</td></tr>
+   <tr><td>02.11.</td><td>PAYPAL *MICROSOFT</td><td class="r">−17,99</td></tr>
+   <tr><td>03.11.</td><td>APPLE.COM/BILL</td><td class="r">−2,99</td></tr>
+   <tr><td>03.11.</td><td>APPLE.COM/BILL</td><td class="r">−0,99</td></tr>
+   <tr><td>12.11.</td><td>PAYPAL *TWITCHINTE</td><td class="r">−4,99</td></tr>
+   <tr><td>15.11.</td><td>PAYPAL *LIEFERPASS</td><td class="r">−9,99</td></tr>
+   <tr><td>27.11.</td><td>PAYPAL *ONLINEMODE (Rechnung, zahlbar in 30 Tagen)</td><td class="r">−89,95</td></tr>
+  </table></div>
+  <div>
+   <div class="dok papier"><h4>📧 Aus Lukas' Postfach (Ausschnitte)</h4>
+    <p class="mono">„Willkommen beim Game Pass! Dein erster Monat kostet nur 1,00 €. Danach 17,99 €/Monat.“</p>
+    <p class="mono">„Dein FitCoach-Pro-Probeabo: 3 Monate für je 0,99 €, danach 11,99 € monatlich. Jederzeit kündbar.“</p>
+    <p class="mono">„iCloud+: Dein Speicherplan (200 GB) für 2,99 € monatlich wurde verlängert.“</p>
+    <p class="mono">„Danke für dein Abo bei Twitch! Du unterstützt deinen Lieblingskanal mit 4,99 € im Monat.“</p>
+    <p class="mono">„LieferPass: Lieferkostenfrei bestellen für 9,99 € im Monat.“</p>
+   </div>
+   <p class="klein">Steam, Vinted und der Online-Modekauf waren einzelne Käufe.</p>
+  </div></div>`,
+  felder:[["Wie viele laufende Abos hat Lukas?",5,0],["Was kosten sie zusammen in den nächsten 12 Monaten?",575.40,0.05]],
+  erkl:"Fünf Abos: Game Pass 17,99 €, iCloud 2,99 €, FitCoach Pro (Probephase vorbei, ab Dezember) 11,99 €, Twitch 4,99 €, LieferPass 9,99 €. Zusammen 47,95 € im Monat, also 575,40 € im Jahr. Mit den Probepreisen gerechnet wären es nur 443,40 €. Die Einstiegspreise von 1,00 € und 0,99 € tarnen die echten Kosten.",
+  hilfen:["Zwei Abbuchungen mit demselben Namen (APPLE.COM/BILL) sind zwei verschiedene Abos. Und die günstigen Preise gelten nicht ewig.","Ordnet jede wiederkehrende Abbuchung einer E-Mail zu. Ab Dezember gilt bei allen Abos der volle Preis. Einzelkäufe zählen nicht.","Die monatlichen Abokosten ab Dezember betragen 47,95 €."]},
+
+{ titel:"Der Sanierungsplan", kurz:"Seriös und dauerhaft", ziffer:"7",
+  material:`
+  <div class="dok"><h4>📊 Kassensturz heute</h4>
+   <table><tr><td>Nettoeinkommen</td><td class="r">1.500,00 €</td></tr><tr><td>Fixkosten</td><td class="r minus">−1.370,00 €</td></tr><tr><td>Raten (Urlaubskredit, Smartphone inkl. Handyschutz, Möbel, „Später zahlen“)</td><td class="r minus">−760,00 €</td></tr><tr><th>Monatliche Lücke</th><th class="r minus">−630,00 €</th></tr></table>
+  </div>
+  <p>Die Schuldnerberatung sammelt Vorschläge. In den Plan kommt nur, was <b>seriös</b> ist, <b>dauerhaft</b> wirkt und für Lukas <b>tatsächlich umsetzbar</b> ist. Lukas arbeitet im Lager mit wechselnden Schichten. Seinen Arbeitsplatz erreicht er nur mit Bus und Bahn.</p>
+  <div class="vorschlag"><span class="nr">1</span><span>Umzug in ein WG-Zimmer: Warmmiete 450 € statt 690 €. Ein Zimmer ist ab nächstem Monat frei.</span><span></span></div>
+  <div class="vorschlag"><span class="nr">2</span><span>Minijob am Wochenende im Supermarkt: 6 Stunden pro Woche zum gesetzlichen Mindestlohn (2026: 13,90 €). Das Jahr hat 52 Wochen.</span><span></span></div>
+  <div class="vorschlag"><span class="nr">3</span><span>Selbst kochen statt Lieferdienst und Bar: spart realistisch 80 € im Monat.</span><span></span></div>
+  <div class="vorschlag"><span class="nr">4</span><span>Alle Abos aus Station 5 kündigen.</span><span></span></div>
+  <div class="vorschlag"><span class="nr">5</span><span>Fitnessstudio kündigen. Die Mindestlaufzeit ist abgelaufen, monatlich kündbar.</span><span></span></div>
+  <div class="vorschlag"><span class="nr">6</span><span>Handyschutz Premium kündigen. Laut Vertrag monatlich kündbar, die Smartphone-Rate läuft weiter.</span><span></span></div>
+  <div class="vorschlag"><span class="nr">7</span><span>Deutschlandticket kündigen, spart 63 € im Monat.</span><span></span></div>
+  <div class="vorschlag"><span class="nr">8</span><span>Anzeige: „Kredit ohne SCHUFA! Alle Raten ablösen, neue Rate nur 400 €. Vermittlungsgebühr 249 € vorab per Überweisung.“</span><span></span></div>
+  <div class="vorschlag"><span class="nr">9</span><span>Die Bank bietet eine Ratenpause beim Urlaubskredit für 3 Monate an (Rate 295,75 €).</span><span></span></div>`,
+  felder:[["Wie viel bleibt Lukas pro Monat übrig, wenn er alle Maßnahmen umsetzt, die in den Plan gehören?",137.24,0.05]],
+  erkl:"In den Plan gehören 1 (+240 €), 2 (6 × 13,90 € × 52 : 12 = +361,40 €), 3 (+80 €), 4 (+47,95 €), 5 (+29,90 €) und 6 (+7,99 €), zusammen +767,24 €. Abzüglich der Lücke von 630 € bleiben 137,24 €. Nicht in den Plan: 7, weil er ohne Ticket nicht zur Arbeit kommt; 8, weil das ein unseriöser Vermittler mit Vorabgebühr ist; 9, weil die Ratenpause nicht dauerhaft wirkt und nur Zeit kauft. Der Minijob bleibt unter der Grenze von 603 €.",
+  hilfen:["Prüft jeden Vorschlag an drei Kriterien: seriös? dauerhaft? für Lukas umsetzbar? Drei Vorschläge fallen durch.","Den Minijob müsst ihr erst in einen Monatsbetrag umrechnen: Stunden × Lohn × 52 Wochen : 12 Monate. Für Vorschlag 4 braucht ihr euer Ergebnis aus Station 5 (pro Monat).","Der Minijob bringt 361,40 € im Monat. Gestrichen werden die Vorschläge 7, 8 und 9."]}
+];
+
+let Z=speicher.get("z")||{start:null,strafe:0,geloest:[],hilfen:{},versuche:{},team:"",fertig:false,ende:null,notizen:{}};
+const sichern=()=>speicher.set("z",Z);
+const DAUER=45*60;
+function rest(){ if(!Z.start) return DAUER; const e=Z.ende||Date.now(); return Math.round(DAUER-(e-Z.start)/1000-Z.strafe); }
+function uhr(){ const r=rest(),a=Math.abs(r); $("#uhr").textContent=(r<0?"+":"")+String(Math.floor(a/60)).padStart(2,"0")+":"+String(a%60).padStart(2,"0"); $("#uhr").style.color=r<0?"#F7A8A0":r<300?"#F3C26B":"#fff"; }
+setInterval(uhr,1000);
+function codeAnz(){ $("#codeAnzeige").innerHTML=CODE.split("").map((z,i)=>`<b class="${Z.geloest.includes(i)?'ok':''}">${Z.geloest.includes(i)?z:"·"}</b>`).join(""); }
+function screen(id){ ["startScreen","spielScreen","tresorScreen","finaleScreen"].forEach(s=>$("#"+s).classList.toggle("versteckt",s!==id)); window.scrollTo({top:0,behavior:"smooth"}); }
+function naechste(){ for(let i=0;i<ST.length;i++) if(!Z.geloest.includes(i)) return i; return null; }
+function kacheln(akt){
+  const frei=i=>i===0||Z.geloest.includes(i-1)||Z.geloest.includes(i);
+  let h=ST.map((s,i)=>`<button class="raum-kachel ${Z.geloest.includes(i)?'geloest':''} ${!frei(i)?'gesperrt':''} ${akt===i?'aktiv':''}" data-r="${i}" ${frei(i)?'':'disabled'}><span class="status">${Z.geloest.includes(i)?"✅":frei(i)?"🔓":"🔒"}</span><span class="nr">Station ${i+1}</span><br><b>${s.titel}</b><br><small class="hinweis">${s.kurz}</small></button>`).join("");
+  const alle=Z.geloest.length===ST.length;
+  h+=`<button class="raum-kachel ${alle?'':'gesperrt'}" id="zumTresor" ${alle?'':'disabled'}><span class="status">${alle?"🔓":"🔒"}</span><span class="nr">Finale</span><br><b>Der Tresor</b><br><small class="hinweis">6 Ziffern</small></button>`;
+  $("#raumKacheln").innerHTML=h;
+  $("#raumKacheln").querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>station(+b.dataset.r));
+  if(alle) $("#zumTresor").onclick=tresor;
+}
+function zahl(s){ s=String(s||"").trim().replace(/\s|€|%/g,"").replace(/^[−–]/,"-"); if(s==="") return NaN; if(/,/.test(s)) s=s.replace(/\./g,"").replace(",","."); else if(/^-?\d{1,3}(\.\d{3})+$/.test(s)) s=s.replace(/\./g,""); return parseFloat(s); }
+function station(i){
+  const S=ST[i], geloest=Z.geloest.includes(i); kacheln(i);
+  $("#raumInhalt").innerHTML=`<div class="karte"><h2>Station ${i+1}: ${S.titel}</h2>${S.material}
+   <div class="antwort"><h4 style="margin-top:0">🧮 Eure Ergebnisse</h4>
+   ${S.felder.map((f,n)=>`<div class="num-zeile"><label for="f${n}">${f[0]}</label><input type="text" inputmode="decimal" id="f${n}" ${geloest?`value="${String(f[1]).replace(".",",")}" disabled`:""}></div>`).join("")}
+   <button class="btn akz" id="pruefBtn" ${geloest?'disabled':''}>Prüfen (Fehlversuch +30 s)</button>
+   <div class="feedback ${geloest?'r':''}" id="fb">${geloest?"<b>Gelöst.</b> "+S.erkl:""}</div></div>
+   <h4>📝 Notizen und Rechenweg</h4><textarea id="notiz" placeholder="Hier könnt ihr rechnen …">${(Z.notizen[i]||"").replace(/</g,"&lt;")}</textarea>
+   <div class="hilfen"><button class="btn sek" id="hilfeBtn"></button><span class="hinweis" id="versuchInfo"></span></div><div id="hilfeTexte"></div>
+   <div id="erfolg"></div></div>`;
+  $("#notiz").oninput=e=>{Z.notizen[i]=e.target.value; sichern();};
+  hilfenZeigen(i);
+  $("#hilfeBtn").onclick=()=>{ const n=Z.hilfen[i]||0; if(n>=3||Z.geloest.includes(i)) return; Z.hilfen[i]=n+1; Z.strafe+=60; sichern(); hilfenZeigen(i); uhr(); };
+  $("#pruefBtn").onclick=()=>pruefe(i);
+  if(geloest) erfolg(i,false);
+  $("#raumInhalt").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function hilfenZeigen(i){
+  const n=Z.hilfen[i]||0, S=ST[i], namen=["💡 Denkanstoß","🧭 Strategie","🔑 Teilergebnis"];
+  $("#hilfeTexte").innerHTML=S.hilfen.slice(0,n).map((t,k)=>`<div class="hilfe-text"><b>${namen[k]}:</b> ${t}</div>`).join("");
+  const b=$("#hilfeBtn");
+  if(Z.geloest.includes(i)){ b.disabled=true; b.textContent="Station gelöst"; }
+  else if(n>=3){ b.disabled=true; b.textContent="Alle Tipps genutzt"; }
+  else b.textContent=`${namen[n]} (+1 Min.)`;
+  const v=Z.versuche[i]||0; $("#versuchInfo").textContent=v?`Fehlversuche: ${v}`:"";
+}
+function pruefe(i){
+  const S=ST[i]; let richtig=0, leer=false;
+  S.felder.forEach((f,n)=>{ const v=zahl($("#f"+n).value); if(isNaN(v)) leer=true; else if(Math.abs(v-f[1])<=f[2]+1e-9) richtig++; });
+  const fb=$("#fb");
+  if(leer){ fb.className="feedback f"; fb.textContent="Bitte alle Felder ausfüllen (Zahlen, Komma als Dezimalzeichen)."; return; }
+  if(richtig===S.felder.length){ Z.geloest.push(i); sichern(); fb.className="feedback r"; fb.innerHTML="<b>Richtig!</b> "+S.erkl; $("#pruefBtn").disabled=true; S.felder.forEach((_,n)=>$("#f"+n).disabled=true); codeAnz(); kacheln(i); hilfenZeigen(i); erfolg(i,true); }
+  else { Z.versuche[i]=(Z.versuche[i]||0)+1; Z.strafe+=30; sichern(); uhr(); hilfenZeigen(i);
+    fb.className="feedback f"; fb.innerHTML = S.felder.length>1 ? `<b>${richtig} von ${S.felder.length} Werten stimmen.</b> Welcher noch nicht? Prüft euren Rechenweg (+30 s).` : `<b>Das Ergebnis stimmt noch nicht.</b> Sucht die versteckte Falle im Material (+30 s).`; }
+}
+function erfolg(i,frisch){
+  const nx=naechste();
+  $("#erfolg").innerHTML=`<div class="karte" style="text-align:center;background:var(--gruen-hell);margin-top:16px"><h3>Station gelöst! Ziffer ${i+1}:</h3><div class="ziffer-gross">${ST[i].ziffer}</div><br>${nx!==null?`<button class="btn akz" id="weiter">Weiter zu Station ${nx+1}</button>`:`<button class="btn akz" id="weiter">Zum Tresor</button>`}</div>`;
+  $("#weiter").onclick=()=> nx!==null?station(nx):tresor();
+  if(frisch) $("#erfolg").scrollIntoView({behavior:"smooth",block:"center"});
+}
+function tresor(){
+  screen("tresorScreen");
+  $("#tresorFelder").innerHTML=CODE.split("").map((_,i)=>`<input maxlength="1" inputmode="numeric" aria-label="Ziffer ${i+1}">`).join("");
+  const ins=[...$("#tresorFelder").querySelectorAll("input")]; ins.forEach((x,i)=>x.oninput=()=>{ if(x.value&&ins[i+1]) ins[i+1].focus(); }); ins[0].focus();
+}
+$("#tresorBtn").onclick=()=>{
+  const w=[...$("#tresorFelder").querySelectorAll("input")].map(x=>x.value).join("");
+  if(w===CODE){ if(!Z.fertig){Z.fertig=true;Z.ende=Date.now();sichern();} finale(); }
+  else { const f=$("#tresorFb"); f.className="feedback f"; f.textContent="Falscher Code. Reihenfolge: Station 1 bis 6, oben in der Leiste."; }
+};
+function finale(){
+  screen("finaleScreen");
+  ["reflexion","hook"].forEach(id=>{ const v=speicher.get(id); if(v) $("#"+id).value=v; $("#"+id).oninput=e=>speicher.set(id,e.target.value); });
+  const tipps=Object.values(Z.hilfen).reduce((a,b)=>a+b,0), fehl=Object.values(Z.versuche).reduce((a,b)=>a+b,0), r=rest();
+  const min=Z.ende&&Z.start?Math.round((Z.ende-Z.start)/60000):null;
+  $("#zertifikat").innerHTML=`<div style="font-size:2.2rem">🕵️</div><h2>Kostenfallen-Detektive</h2><p><b>${(Z.team||"Euer Team").replace(/[<>]/g,"")}</b> hat alle sechs versteckten Kostenfallen in Lukas' Akte aufgedeckt.</p>
+   <p>Spielzeit: <b>${min??"–"} Min.</b> · Tipps: <b>${tipps}</b> · Fehlversuche: <b>${fehl}</b> · ${r>=0?`Restzeit: <b>${Math.floor(r/60)}:${String(r%60).padStart(2,"0")}</b>`:"Zeit überzogen, aber geknackt!"}</p>
+   <p class="hinweis">Merksatz: <i>Nicht die Monatsrate zählt, sondern der Gesamtbetrag. Rechne jede Ausgabe aufs Jahr hoch und lies das Kleingedruckte.</i></p>`;
+}
+$("#losBtn").onclick=()=>{ Z.team=$("#teamName").value.trim(); if(!Z.start) Z.start=Date.now(); sichern(); screen("spielScreen"); station(naechste()??0); };
+$("#resetBtn").onclick=function(){ this.textContent="Wirklich alles löschen? Nochmal klicken"; this.onclick=()=>{ speicher.weg(); location.reload(); }; };
+$("#glossarBtn").onclick=()=>$("#glossar").showModal();
+if(Z.team) $("#teamName").value=Z.team;
+if(Z.start) $("#losBtn").textContent="Ermittlung fortsetzen";
+codeAnz(); uhr(); if(Z.fertig) finale();
+</script>
+</body>
+</html>
